@@ -1,78 +1,103 @@
 import streamlit as st
 
-# --- NOKIA 3310 "PRO" STYLING ---
+# --- HARDENED NOKIA STYLING ---
 st.markdown("""
     <style>
-    .stApp { background-color: #2c3e50 !important; }
+    .stApp { background-color: #1a1c22 !important; }
+    
+    /* The Physical Case */
     .nokia-bezel {
-        background-color: #8e9aaf; padding: 30px 15px; border-radius: 40px;
-        border: 8px solid #4a4e69; max-width: 380px; margin: auto;
+        background-color: #8e9aaf;
+        padding: 30px 15px;
+        border-radius: 40px;
+        border: 8px solid #4a4e69;
+        width: 320px; /* Fixed width for better framing */
+        margin: auto;
+        box-shadow: 0px 10px 20px rgba(0,0,0,0.5);
+        text-align: center;
     }
+    
+    /* The LCD Screen */
     .nokia-screen {
-        background-color: #c7d19e; color: #2b3d20 !important;
-        font-family: 'Courier New', monospace; padding: 15px;
-        border: 4px solid #2b3d20; height: 420px; border_radius: 5px;
+        background-color: #c7d19e;
+        border: 4px solid #2b3d20;
+        height: 380px;
+        width: 100%;
+        box-sizing: border-box; /* Crucial for keeping text inside */
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        text-align: left;
     }
-    .nokia-text { color: #2b3d20 !important; font-weight: bold; font-size: 16px; margin: 0; }
-    .ticker { background-color: #b5c18e; padding: 5px; font-size: 12px; border-bottom: 1px solid #2b3d20; }
+
+    /* Screen Text */
+    .lcd-text {
+        color: #2b3d20 !important;
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 1.4;
+        margin: 0;
+        white-space: pre-wrap; /* Keeps spacing exactly as coded */
+    }
+
+    .lcd-header {
+        border-bottom: 2px solid #2b3d20;
+        width: 100%;
+        margin-bottom: 10px;
+        padding-bottom: 4px;
+        font-size: 12px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# --- THE WORLD STATE ---
-if 'menu_path' not in st.session_state:
-    st.session_state.menu_path = ["HOME"]
-if 'current_band' not in st.session_state:
-    st.session_state.current_band = "BENGAL LIGHTS"
+# --- THE SHARED ENGINE LOGIC ---
+if 'menu' not in st.session_state:
+    st.session_state.menu = "HOME"
 
-# --- THE HUD (NEWS TICKER) ---
-news_items = [
-    "UK: Post-Punk revival hits London... ",
-    "AKL: Whammy Bar runs out of Export Gold... ",
-    "USA: Pitchfork gives Bandicoot 8.2... ",
-    "INDUSTRY: Powertool Records CEO seen in Silverdale... "
-]
-st.markdown(f'<div class="ticker"><marquee>{ " | ".join(news_items) }</marquee></div>', unsafe_allow_html=True)
+# --- RENDER THE LOCKED FRAME ---
+# We build the entire screen as a single HTML string
+screen_content = ""
 
-# --- THE SCREEN ---
-st.markdown('<div class="nokia-bezel"><div class="nokia-screen">', unsafe_allow_html=True)
+if st.session_state.menu == "HOME":
+    screen_content = f"""
+    <div class="lcd-header">16:20 | MUZ-3310</div>
+    <p class="lcd-text">1. Check Messages</p>
+    <p class="lcd-text">2. Check News</p>
+    <p class="lcd-text">3. Book Practice</p>
+    <p class="lcd-text">4. Check Schedule</p>
+    <p class="lcd-text">5. Snake II</p>
+    """
+elif st.session_state.menu == "NEWS":
+    screen_content = """
+    <div class="lcd-header">GLOBAL NEWS</div>
+    <p class="lcd-text">- bFM: Bengal Lights
+    entering Top 10.</p>
+    <p class="lcd-text">- UK: Vinyl prices
+    hit record high.</p>
+    <p class="lcd-text">- PT: Powertool signs
+    new 'mystery' act.</p>
+    """
 
-current = st.session_state.menu_path[-1]
+# Wrap the content in the Bezel and Screen divs
+st.markdown(f"""
+    <div class="nokia-bezel">
+        <div class="nokia-screen">
+            {screen_content}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-if current == "HOME":
-    st.markdown(f'<p class="nokia-text">-- {st.session_state.current_band} --</p>', unsafe_allow_html=True)
-    st.markdown('<p class="nokia-text">1. Messages</p>', unsafe_allow_html=True)
-    st.markdown('<p class="nokia-text">2. World News</p>', unsafe_allow_html=True)
-    st.markdown('<p class="nokia-text">3. Promoter Log</p>', unsafe_allow_html=True)
-    st.markdown('<p class="nokia-text">4. A&R Scout</p>', unsafe_allow_html=True)
-    st.markdown('<p class="nokia-text">5. Snake II</p>', unsafe_allow_html=True)
-
-elif current == "MESSAGES":
-    st.markdown('<p class="nokia-text">[ INBOX ]</p>', unsafe_allow_html=True)
-    st.markdown('<p class="nokia-text">> Band: "Gig was lush."</p>', unsafe_allow_html=True)
-    st.markdown('<p class="nokia-text">> Rival: "Check the charts."</p>', unsafe_allow_html=True)
-
-elif current == "WORLD NEWS":
-    st.markdown('<p class="nokia-text">[ GLOBAL FEED ]</p>', unsafe_allow_html=True)
-    st.markdown('<p class="nokia-text">- NZ: Sure Boy tour sold out in 4 mins.</p>', unsafe_allow_html=True)
-    st.markdown('<p class="nokia-text">- UK: Wet Leg seen wearing Bacio Merch.</p>', unsafe_allow_html=True)
-
-elif current == "A&R SCOUT":
-    st.markdown('<p class="nokia-text">[ SCENE SCOUT ]</p>', unsafe_allow_html=True)
-    st.markdown('<p class="nokia-text">BANDICOOT: Hype 88%</p>', unsafe_allow_html=True)
-    st.markdown('<p class="nokia-text">GOD BOWS: Hype 42%</p>', unsafe_allow_html=True)
-    st.markdown('<p class="nokia-text">-- Powertool spying on both --</p>', unsafe_allow_html=True)
-
-st.markdown('</div></div>', unsafe_allow_html=True)
-
-# --- NOKIA BUTTONS (The Nested Engine) ---
+# --- PHYSICAL INPUTS (Outside the frame) ---
 st.write("")
-c1, c2, c3 = st.columns(3)
+c1, c2, c3 = st.columns([1,1,1])
 with c1:
-    if st.button("BACK"):
-        if len(st.session_state.menu_path) > 1: st.session_state.menu_path.pop()
+    if st.button("CLR"):
+        st.session_state.menu = "HOME"
 with c2:
-    st.button("▲") # Navigation would go here
+    st.button("▲")
 with c3:
     if st.button("SEL"):
-        # Very simple hardcoded dive for the demo
-        if current == "HOME": st.session_state.menu_path.append("MESSAGES")
+        st.session_state.menu = "NEWS"
