@@ -1,130 +1,139 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
-# --- STATE MANAGEMENT ---
-if 'page' not in st.session_state: st.session_state.page = "HOME"
-if 'cursor' not in st.session_state: st.session_state.cursor = 0
-if 'hours' not in st.session_state: st.session_state.hours = 0
+# --- SYSTEM SETTINGS ---
+st.set_page_config(layout="centered")
 
-MENU_ITEMS = ["MESSAGES", "WAP NEWS", "PRACTICE", "SCHEDULE", "SNAKE II"]
-
-def move(d): st.session_state.cursor = (st.session_state.cursor + d) % len(MENU_ITEMS)
-def nav(p): st.session_state.page = p
-def tick(): st.session_state.hours = (st.session_state.hours + 2) % 24
-
-# --- THE "ULTIMATE HANDHELD" CSS ---
-st.markdown("""
+# --- THE HANDHELD COMPONENT ---
+# This is raw HTML/JS. Streamlit cannot touch or "reflow" this.
+handheld_html = """
 <style>
-    /* 1. Reset the Viewport */
-    [data-testid="stAppViewContainer"] { background-color: #1a1c22 !important; }
-    [data-testid="stHeader"] { visibility: hidden; }
-    .main .block-container { padding: 10px !important; max-width: 320px; margin: auto; }
-
-    /* 2. The Game Boy Chassis */
-    .chassis {
-        background-color: #d1d5db; /* Classic Gray */
-        padding: 20px;
-        border-radius: 15px 15px 60px 15px; /* That iconic bottom corner curve */
-        border: 4px solid #9ca3af;
-        box-shadow: inset -5px -5px 0px #9ca3af, 10px 10px 20px rgba(0,0,0,0.5);
-    }
-
-    /* 3. The Dot-Matrix Screen */
-    .screen {
-        background-color: #9bbc0f;
-        border: 15px solid #374151; /* The dark grey screen bezel */
-        height: 200px;
-        padding: 10px;
-        font-family: 'monospace';
-        color: #0f380f !important;
-        box-shadow: inset 3px 3px 10px rgba(0,0,0,0.2);
-        margin-bottom: 30px;
-    }
-    .selected { background-color: #306230; color: #9bbc0f !important; }
-
-    /* 4. Force 3-Column Keypad without Stacking */
-    div[data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        gap: 5px !important;
-        align-items: center;
-    }
-    div[data-testid="stHorizontalBlock"] > div { width: 33% !important; min-width: 0px !important; }
-
-    /* 5. Button Styling */
-    /* D-PAD (Charcoal) */
-    .dpad button { background-color: #262626 !important; color: white !important; height: 45px !important; border: 1px solid #000 !important; }
+    body { background-color: #1a1c22; display: flex; justify-content: center; align-items: flex-start; height: 100vh; margin: 0; font-family: monospace; overflow: hidden; }
     
-    /* A/B Buttons (Circular Red) */
-    .ab-btn button { 
-        background-color: #8b0000 !important; 
-        color: white !important; 
-        border-radius: 50% !important; 
-        height: 55px !important; width: 55px !important;
-        border: 2px solid #580000 !important;
-        font-weight: bold !important;
+    /* The Physical Case */
+    .chassis {
+        background-color: #d1d5db; width: 320px; height: 560px;
+        border-radius: 20px 20px 60px 20px; border: 4px solid #9ca3af;
+        position: relative; box-shadow: 10px 10px 0px #000;
+        user-select: none;
     }
+
+    /* The Screen */
+    .screen-bezel { background-color: #374151; padding: 20px; border-radius: 10px; margin: 20px; }
+    .screen {
+        background-color: #9bbc0f; height: 160px; border: 4px solid #306230;
+        padding: 10px; color: #0f380f; overflow: hidden;
+    }
+    .selected { background-color: #306230; color: #9bbc0f; }
+
+    /* D-PAD (The Plus) */
+    .dpad {
+        position: absolute; bottom: 120px; left: 30px;
+        width: 90px; height: 90px;
+    }
+    .dp-btn {
+        position: absolute; background: #262626; border: 2px solid #000;
+        color: white; font-size: 10px; display: flex; align-items: center; justify-content: center;
+    }
+    .dp-up { width: 30px; height: 30px; left: 30px; top: 0; border-radius: 4px 4px 0 0; }
+    .dp-down { width: 30px; height: 30px; left: 30px; top: 60px; border-radius: 0 0 4px 4px; }
+    .dp-left { width: 30px; height: 30px; left: 0; top: 30px; border-radius: 4px 0 0 4px; }
+    .dp-right { width: 30px; height: 30px; left: 60px; top: 30px; border-radius: 0 4px 4px 0; }
+    .dp-mid { width: 30px; height: 30px; left: 30px; top: 30px; background: #262626; border: none; }
+
+    /* A/B Buttons (Circles) */
+    .btn-a, .btn-b {
+        position: absolute; width: 55px; height: 55px;
+        border-radius: 50%; background: #8b0000; border: 3px solid #580000;
+        color: white; font-weight: bold; display: flex; align-items: center; justify-content: center;
+        box-shadow: 2px 2px 0px #000;
+    }
+    .btn-b { bottom: 160px; right: 85px; }
+    .btn-a { bottom: 130px; right: 20px; }
 
     /* Select/Start (Pills) */
-    .pill button { 
-        background-color: #71717a !important; 
-        border-radius: 20px !important; 
-        height: 15px !important; 
-        font-size: 10px !important;
-        text-transform: uppercase;
+    .pill {
+        position: absolute; bottom: 40px; width: 50px; height: 12px;
+        background: #71717a; border-radius: 10px; transform: rotate(-25deg);
+        border: 2px solid #3f3f46; cursor: pointer;
     }
+    .p-select { left: 100px; }
+    .p-start { left: 170px; }
+    .pill-label { position: absolute; font-size: 8px; color: #333; bottom: 25px; font-weight: bold; }
 </style>
-""", unsafe_allow_html=True)
 
-# --- RENDER THE SCREEN ---
-content = ""
-if st.session_state.page == "HOME":
-    content = f"<small>D1 | {st.session_state.hours:02d}:00</small><br><b>MUZ-BIT</b><hr>"
-    for i, item in enumerate(MENU_ITEMS):
-        cls = "selected" if i == st.session_state.cursor else ""
-        content += f"<div class='{cls}'>▶ {item}</div>"
-else:
-    content = f"<b>{st.session_state.page}</b><hr><p>Incoming...<br>Check Master Dock for details.</p>"
+<div class="chassis">
+    <div class="screen-bezel">
+        <div class="screen" id="display">
+            LOADING MUZ-BIT...
+        </div>
+    </div>
 
-st.markdown(f"<div class='chassis'><div class='screen'>{content}</div>", unsafe_allow_html=True)
+    <div class="dpad">
+        <div class="dp-btn dp-up" onclick="nav(-1)">▲</div>
+        <div class="dp-btn dp-mid"></div>
+        <div class="dp-btn dp-down" onclick="nav(1)">▼</div>
+        <div class="dp-btn dp-left">◀</div>
+        <div class="dp-btn dp-right">▶</div>
+    </div>
 
-# --- THE CONTROLS (D-PAD & A/B) ---
-# This row contains the D-Pad on the left and A/B on the right
-col_left, col_mid, col_right = st.columns([1.5, 0.5, 2])
+    <div class="btn-b" onclick="goHome()">B</div>
+    <div class="btn-a" onclick="confirm()">A</div>
 
-with col_left:
-    # A 3x3 styled grid for the D-Pad
-    st.markdown("<div class='dpad'>", unsafe_allow_html=True)
-    c1, c2, c3 = st.columns(3)
-    c2.button("▲", on_click=move, args=(-1,))
-    
-    r2_1, r2_2, r2_3 = st.columns(3)
-    r2_1.button("◀")
-    r2_2.button("ok") # Center of D-pad
-    r2_3.button("▶")
-    
-    r3_1, r3_2, r3_3 = st.columns(3)
-    r3_1.button("▼", on_click=move, args=(1,))
-    st.markdown("</div>", unsafe_allow_html=True)
+    <div class="pill p-select" onclick="goHome()"></div>
+    <div class="pill-label" style="left:100px;">SELECT</div>
+    <div class="pill p-start" onclick="advanceTime()"></div>
+    <div class="pill-label" style="left:170px;">START</div>
+</div>
 
-with col_right:
-    # A/B Buttons (Staggered)
-    st.markdown("<div class='ab-btn'>", unsafe_allow_html=True)
-    st.write(" ") # Padding
-    st.button("B", on_click=nav, args=("HOME",))
-    st.button("A", on_click=nav, args=(MENU_ITEMS[st.session_state.cursor],))
-    st.markdown("</div>", unsafe_allow_html=True)
+<script>
+    let menu = ["MESSAGES", "WAP NEWS", "PRACTICE", "SCHEDULE", "SNAKE II"];
+    let cursor = 0;
+    let page = "HOME";
+    let hours = 0;
 
-# --- SELECT / START ---
-st.write("")
-s1, s2, s3, s4, s5 = st.columns([1,2,1,2,1])
-with s2:
-    st.markdown("<div class='pill'>", unsafe_allow_html=True)
-    st.button("select", on_click=nav, args=("HOME",))
-    st.markdown("</div>", unsafe_allow_html=True)
-with s4:
-    st.markdown("<div class='pill'>", unsafe_allow_html=True)
-    st.button("start", on_click=tick)
-    st.markdown("</div>", unsafe_allow_html=True)
+    function render() {
+        const display = document.getElementById('display');
+        let html = `<div style="display:flex; justify-content:space-between; font-size:10px; font-weight:bold; border-bottom:1px solid #306230; margin-bottom:5px;">
+                        <span>MUZ-BIT</span><span>${hours.toString().padStart(2, '0')}:00</span>
+                    </div>`;
 
-st.markdown("</div>", unsafe_allow_html=True) # End Chassis
+        if (page === "HOME") {
+            menu.forEach((item, i) => {
+                let cls = (i === cursor) ? "class='selected'" : "";
+                html += `<div ${cls} style="font-size:14px; font-weight:bold; text-transform:uppercase;">${(i===cursor ? "▶ " : "  ") + item}</div>`;
+            });
+        } else if (page === "MESSAGES") {
+            html += "<b>INBOX</b><br><small>B.LIGHTS: Ready?</small><br><small>PT: Back off.</small>";
+        } else if (page === "WAP NEWS") {
+            html += "<b>WAP BROWSER</b><br><small>bFM: #1 SPOT!</small><br><small>UK: VINYL SHORTAGE</small>";
+        }
+        display.innerHTML = html;
+    }
+
+    function nav(dir) {
+        cursor = (cursor + dir + menu.length) % menu.length;
+        render();
+    }
+
+    function confirm() {
+        page = menu[cursor];
+        render();
+    }
+
+    function goHome() {
+        page = "HOME";
+        render();
+    }
+
+    function advanceTime() {
+        hours = (hours + 2) % 24;
+        render();
+    }
+
+    render();
+</script>
+"""
+
+# Render the component
+components.html(handheld_html, height=600)
