@@ -1,65 +1,78 @@
 import streamlit as st
 
-# --- CLASSIC MSN SKIN CSS ---
+# --- NOKIA 3310 "PRO" STYLING ---
 st.markdown("""
     <style>
-    /* Force high-contrast text and background */
-    .stApp { background-color: #FFFFFF !important; color: #000000 !important; }
-    
-    /* Header: The Iconic MSN Blue Gradient */
-    .msn-header {
-        background: linear-gradient(to bottom, #73a3d4 0%, #005da3 100%);
-        color: white !important;
-        padding: 12px;
-        font-family: 'Tahoma', 'Segoe UI', sans-serif;
-        font-weight: bold;
-        border-radius: 8px 8px 0 0;
-        display: flex; align-items: center;
-        border: 1px solid #004a80;
+    .stApp { background-color: #2c3e50 !important; }
+    .nokia-bezel {
+        background-color: #8e9aaf; padding: 30px 15px; border-radius: 40px;
+        border: 8px solid #4a4e69; max-width: 380px; margin: auto;
     }
-
-    /* Status Bar: "What's on your mind?" */
-    .status-area {
-        background-color: #e9eff7;
-        border: 1px solid #adc4e5;
-        padding: 8px;
-        margin-top: -1px;
-        font-size: 13px;
-        color: #444 !important;
+    .nokia-screen {
+        background-color: #c7d19e; color: #2b3d20 !important;
+        font-family: 'Courier New', monospace; padding: 15px;
+        border: 4px solid #2b3d20; height: 420px; border_radius: 5px;
     }
-
-    /* Chat Bubbles: Soft Blue/Grey */
-    .chat-bubble {
-        background: #f1f6fb;
-        border: 1px solid #c5d7ef;
-        padding: 10px;
-        border-radius: 12px;
-        margin-bottom: 15px;
-        color: #000 !important;
-    }
-
-    .band-label { color: #d32f2f !important; font-weight: bold; }
-    .rival-label { color: #1976d2 !important; font-weight: bold; }
-    
-    /* Buttons: Silver XP Style */
-    .stButton>button {
-        background: linear-gradient(to bottom, #ffffff 0%, #e0e0e0 100%);
-        border: 1px solid #707070;
-        color: #333 !important;
-        font-weight: bold;
-    }
+    .nokia-text { color: #2b3d20 !important; font-weight: bold; font-size: 16px; margin: 0; }
+    .ticker { background-color: #b5c18e; padding: 5px; font-size: 12px; border-bottom: 1px solid #2b3d20; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- THE APP CONTENT ---
-st.markdown('<div class="msn-header">🟢 MUZ Messenger - Bengal Lights (Online)</div>', unsafe_allow_html=True)
-st.markdown('<div class="status-area"><i>"Waiting for the Master Dock to sync..."</i></div>', unsafe_allow_html=True)
+# --- THE WORLD STATE ---
+if 'menu_path' not in st.session_state:
+    st.session_state.menu_path = ["HOME"]
+if 'current_band' not in st.session_state:
+    st.session_state.current_band = "BENGAL LIGHTS"
 
-st.write("") # Spacer
+# --- THE HUD (NEWS TICKER) ---
+news_items = [
+    "UK: Post-Punk revival hits London... ",
+    "AKL: Whammy Bar runs out of Export Gold... ",
+    "USA: Pitchfork gives Bandicoot 8.2... ",
+    "INDUSTRY: Powertool Records CEO seen in Silverdale... "
+]
+st.markdown(f'<div class="ticker"><marquee>{ " | ".join(news_items) }</marquee></div>', unsafe_allow_html=True)
 
-with st.container():
-    st.markdown('''<div class="chat-bubble"><span class="band-label">Bengal Lights says:</span><br>
-    Yo, the sound engineer at Whammy is being a total diva. Can you Nudge him?</div>''', unsafe_allow_html=True)
-    
-    st.markdown('''<div class="chat-bubble"><span class="rival-label">Powertool Records says:</span><br>
-    Saw your radio numbers. Cute. We just bought the ad space on the bFM breakfast slot for the whole month.</div>''', unsafe_allow_html=True)
+# --- THE SCREEN ---
+st.markdown('<div class="nokia-bezel"><div class="nokia-screen">', unsafe_allow_html=True)
+
+current = st.session_state.menu_path[-1]
+
+if current == "HOME":
+    st.markdown(f'<p class="nokia-text">-- {st.session_state.current_band} --</p>', unsafe_allow_html=True)
+    st.markdown('<p class="nokia-text">1. Messages</p>', unsafe_allow_html=True)
+    st.markdown('<p class="nokia-text">2. World News</p>', unsafe_allow_html=True)
+    st.markdown('<p class="nokia-text">3. Promoter Log</p>', unsafe_allow_html=True)
+    st.markdown('<p class="nokia-text">4. A&R Scout</p>', unsafe_allow_html=True)
+    st.markdown('<p class="nokia-text">5. Snake II</p>', unsafe_allow_html=True)
+
+elif current == "MESSAGES":
+    st.markdown('<p class="nokia-text">[ INBOX ]</p>', unsafe_allow_html=True)
+    st.markdown('<p class="nokia-text">> Band: "Gig was lush."</p>', unsafe_allow_html=True)
+    st.markdown('<p class="nokia-text">> Rival: "Check the charts."</p>', unsafe_allow_html=True)
+
+elif current == "WORLD NEWS":
+    st.markdown('<p class="nokia-text">[ GLOBAL FEED ]</p>', unsafe_allow_html=True)
+    st.markdown('<p class="nokia-text">- NZ: Sure Boy tour sold out in 4 mins.</p>', unsafe_allow_html=True)
+    st.markdown('<p class="nokia-text">- UK: Wet Leg seen wearing Bacio Merch.</p>', unsafe_allow_html=True)
+
+elif current == "A&R SCOUT":
+    st.markdown('<p class="nokia-text">[ SCENE SCOUT ]</p>', unsafe_allow_html=True)
+    st.markdown('<p class="nokia-text">BANDICOOT: Hype 88%</p>', unsafe_allow_html=True)
+    st.markdown('<p class="nokia-text">GOD BOWS: Hype 42%</p>', unsafe_allow_html=True)
+    st.markdown('<p class="nokia-text">-- Powertool spying on both --</p>', unsafe_allow_html=True)
+
+st.markdown('</div></div>', unsafe_allow_html=True)
+
+# --- NOKIA BUTTONS (The Nested Engine) ---
+st.write("")
+c1, c2, c3 = st.columns(3)
+with c1:
+    if st.button("BACK"):
+        if len(st.session_state.menu_path) > 1: st.session_state.menu_path.pop()
+with c2:
+    st.button("▲") # Navigation would go here
+with c3:
+    if st.button("SEL"):
+        # Very simple hardcoded dive for the demo
+        if current == "HOME": st.session_state.menu_path.append("MESSAGES")
