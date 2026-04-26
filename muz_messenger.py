@@ -1,48 +1,65 @@
 import streamlit as st
 
-# --- CUSTOM MSN STYLING ---
+# --- CLASSIC MSN SKIN CSS ---
 st.markdown("""
     <style>
-    .stApp { background-color: #f1f5f9; }
-    .msn-header { 
-        background: linear-gradient(to bottom, #4a90e2, #2171cd);
-        color: white; padding: 10px; border-radius: 5px 5px 0 0;
-        font-family: 'Tahoma', sans-serif; display: flex; align-items: center;
+    /* Force high-contrast text and background */
+    .stApp { background-color: #FFFFFF !important; color: #000000 !important; }
+    
+    /* Header: The Iconic MSN Blue Gradient */
+    .msn-header {
+        background: linear-gradient(to bottom, #73a3d4 0%, #005da3 100%);
+        color: white !important;
+        padding: 12px;
+        font-family: 'Tahoma', 'Segoe UI', sans-serif;
+        font-weight: bold;
+        border-radius: 8px 8px 0 0;
+        display: flex; align-items: center;
+        border: 1px solid #004a80;
     }
-    .status-dot { height: 12px; width: 12px; background-color: #31a24c; border-radius: 50%; display: inline-block; margin-right: 10px; border: 1px solid white; }
+
+    /* Status Bar: "What's on your mind?" */
+    .status-area {
+        background-color: #e9eff7;
+        border: 1px solid #adc4e5;
+        padding: 8px;
+        margin-top: -1px;
+        font-size: 13px;
+        color: #444 !important;
+    }
+
+    /* Chat Bubbles: Soft Blue/Grey */
     .chat-bubble {
-        background-color: white; padding: 12px; border-radius: 15px;
-        border: 1px solid #ddd; margin-bottom: 10px; font-family: 'Tahoma', sans-serif;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+        background: #f1f6fb;
+        border: 1px solid #c5d7ef;
+        padding: 10px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        color: #000 !important;
     }
-    .band-name { font-weight: bold; color: #2171cd; margin-bottom: 5px; }
+
+    .band-label { color: #d32f2f !important; font-weight: bold; }
+    .rival-label { color: #1976d2 !important; font-weight: bold; }
+    
+    /* Buttons: Silver XP Style */
+    .stButton>button {
+        background: linear-gradient(to bottom, #ffffff 0%, #e0e0e0 100%);
+        border: 1px solid #707070;
+        color: #333 !important;
+        font-weight: bold;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# --- HEADER ---
-st.markdown("""
-    <div class="msn-header">
-        <span class="status-dot"></span>
-        MUZ Messenger - Maeve (Online)
-    </div>
-    """, unsafe_allow_html=True)
+# --- THE APP CONTENT ---
+st.markdown('<div class="msn-header">🟢 MUZ Messenger - Bengal Lights (Online)</div>', unsafe_allow_html=True)
+st.markdown('<div class="status-area"><i>"Waiting for the Master Dock to sync..."</i></div>', unsafe_allow_html=True)
 
-# --- THE FIELDWORK FEED ---
-st.write("### 👥 Contacts")
-with st.expander("The Bengal Lights (Current Focus)", expanded=True):
-    st.progress(0.45, text="Ego: 45%")
-    st.markdown('<div class="chat-bubble"><p class="band-name">Bengal Lights:</p>Yo Boss, Powertool Records just messaged us. They offered us a slot at Ding Dong Lounge... what do we do?</div>', unsafe_allow_html=True)
+st.write("") # Spacer
 
-with st.expander("Rival: Powertool Records"):
-    st.markdown('<div class="chat-bubble"><p class="band-name">Powertool:</p>Nice press release. Would be a shame if someone booked out the Powerstation for the next three months. 😉</div>', unsafe_allow_html=True)
-
-# --- THE "MASTER DOCK" SYNC ---
-st.write("---")
-st.write("### 🛠 Action Center")
-col1, col2 = st.columns(2)
-with col1:
-    if st.button("✅ Accept Offer"):
-        st.success("Accepted! Sent to Master Dock for Soundcheck.")
-with col2:
-    if st.button("💸 Send Pizza ($40)"):
-        st.toast("Ego decreased! The band is happy.")
+with st.container():
+    st.markdown('''<div class="chat-bubble"><span class="band-label">Bengal Lights says:</span><br>
+    Yo, the sound engineer at Whammy is being a total diva. Can you Nudge him?</div>''', unsafe_allow_html=True)
+    
+    st.markdown('''<div class="chat-bubble"><span class="rival-label">Powertool Records says:</span><br>
+    Saw your radio numbers. Cute. We just bought the ad space on the bFM breakfast slot for the whole month.</div>''', unsafe_allow_html=True)
